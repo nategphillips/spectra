@@ -8,15 +8,15 @@
 
 The quantities given by
 \begin{equation*}
-    \eul^{-G_0(v)hc/kT}
+    e^{-G_{0}(v)hc/kT}
 \end{equation*}
 give the relative numbers of molecules in the different vibrational levels relative to the number of molecules in the lowest vibrational level. A more useful equation gives the ratio between the number of molecules in a certain vibrational level relative to the total number of molecules as
 \begin{equation*}
-    \frac{N_v}{N} = \frac{\eul^{-G_0(v)hc/kT}}{Q_v}.
+    \frac{N_{v}}{N} = \frac{e^{-G_{0}(v)hc / kT}}{Q_{v}}.
 \end{equation*}
-Here, $Q_v$ is the vibrational partition function and is given by
+Here, $Q_{v}$ is the vibrational partition function and is given by
 \begin{equation*}
-    Q_v = \sum_{v=0}^{\infty}\eul^{-G_0(v)hc/kT} = 1 + \eul^{-G_0(1)hc/kT} + \eul^{-G_0(2)hc/kT} + \dotsb.
+    Q_{v} = \sum_{v=0}^{\infty}e^{-G_{0}(v)hc / kT} = 1 + e^{-G_{0}(1)hc / kT} + e^{-G_{0}(2)hc / kT} + \dotsb.
 \end{equation*}
 
 \subsection{Intensities}
@@ -28,33 +28,33 @@ Here, $Q_v$ is the vibrational partition function and is given by
 
 \subsection{Partition Function}
 
-The number of molecules $N_J$ in the rotational level $J$ of the lowest vibrational state at the temperature $T$ is proportional to
+The number of molecules $N_{J}$ in the rotational level $J$ of the lowest vibrational state at the temperature $T$ is proportional to
 \begin{equation*}
-    (2J + 1)\eul^{-F(J)hc/kT}.
+    (2J + 1)e^{-F(J)hc/kT}.
 \end{equation*}
 For most practical cases like a rigid rotator with $\Lambda = 0$,
 \begin{equation*}
-    N_J \propto (2J + 1)\eul^{-BJ(J + 1)hc/kT}.
+    N_{J} \propto (2J + 1)e^{-BJ(J + 1)hc/kT}.
 \end{equation*}
 The number of molecules in the different rotational states does not increase linearly and goes through a maximum with the rotational quantum number
 \begin{equation*}
-    J\_{max} = \sqrt{\frac{kT}{2Bhc}} - \frac{1}{2}.
+    J\subtxt{max} = \sqrt{\frac{kT}{2Bhc}} - \frac{1}{2}.
 \end{equation*}
 
 The ratio of the actual number of molecules in a given rotational state is given by
 \begin{equation*}
-    \frac{N_J}{N} = (2J + 1)\frac{\eul^{-F(J)hc/kT}}{Q_r},
+    \frac{N_{J}}{N} = (2J + 1)\frac{e^{-F(J)hc/kT}}{Q_{r}},
 \end{equation*}
-where the rotational partition function $Q_r$ is given as
+where the rotational partition function $Q_{r}$ is given as
 \begin{equation}
-    Q_r = \sum_{J=0}^{\infty}(2J + 1)\eul^{-F(J)hc/kT} = 1 + 3\eul^{-F(1)hc/kT} + 5\eul^{-F(2)hc/kT} + \dotsb.
+    Q_{r} = \sum_{J=0}^{\infty}(2J + 1)e^{-F(J)hc/kT} = 1 + 3e^{-F(1)hc/kT} + 5e^{-F(2)hc/kT} + \dotsb.
 \end{equation}
 
 For higher vibrational levels,
 \begin{equation}
-    N_J \propto (2J + 1)\eul^{-(G + F)hc/kT}.
+    N_{J} \propto (2J + 1)e^{-(G + F)hc/kT}.
 \end{equation}
-However, the factor $\eul^{-Ghc/kT}$ can be separated off since the distribution over the rotational levels is the same but the absolute population of all the levels is considerably smaller than for the lowest vibrational level.
+However, the factor $e^{-Ghc/kT}$ can be separated off since the distribution over the rotational levels is the same but the absolute population of all the levels is considerably smaller than for the lowest vibrational level.
 
 \subsection{Intensities}
 
@@ -66,31 +66,31 @@ However, the factor $\eul^{-Ghc/kT}$ can be separated off since the distribution
     \label{t:honl-london_factors}
     \begin{tabular}{ccc}
         \toprule
-        Branch  & Absorption                                                                & Emission                                                           \\
+        Branch      & Absorption                                                                & Emission                                                           \\
         \midrule
-        \multicolumn{3}{c}{$\adif{\Lambda} = 0$ \textit{Transitions}}                                                                                            \\
+        \multicolumn{3}{c}{$\adif{\Lambda} = 0$ \textit{Transitions}}                                                                                                \\
         \cmidrule(lr){1-3}
-        $S_J^R$ & $\dfrac{(J'' + 1 + \Lambda'')(J'' + 1 - \Lambda'')}{J'' + 1}$             & $\dfrac{(J' + \Lambda')(J' - \Lambda')}{J'}$                       \\
+        $S_{J}^{R}$ & $\dfrac{(J'' + 1 + \Lambda'')(J'' + 1 - \Lambda'')}{J'' + 1}$             & $\dfrac{(J' + \Lambda')(J' - \Lambda')}{J'}$                       \\
         \addlinespace[0.5em]
-        $S_J^Q$ & $\dfrac{(2J'' + 1)\Lambda''^2}{J''(J'' + 1)}$                             & $\dfrac{(2J' + 1)\Lambda'^2}{J'(J' + 1)}$                          \\
+        $S_{J}^{Q}$ & $\dfrac{(2J'' + 1)\Lambda''^{2}}{J''(J'' + 1)}$                           & $\dfrac{(2J' + 1)\Lambda'^{2}}{J'(J' + 1)}$                        \\
         \addlinespace[0.5em]
-        $S_J^P$ & $\dfrac{(J'' + \Lambda'')(J'' - \Lambda'')}{J''}$                         & $\dfrac{(J' + 1 + \Lambda')(J' + 1 - \Lambda')}{J' + 1}$           \\
+        $S_{J}^{P}$ & $\dfrac{(J'' + \Lambda'')(J'' - \Lambda'')}{J''}$                         & $\dfrac{(J' + 1 + \Lambda')(J' + 1 - \Lambda')}{J' + 1}$           \\
         \addlinespace[0.5em]
-        \multicolumn{3}{c}{$\adif{\Lambda} = +1$ \textit{Transitions}}                                                                                           \\
+        \multicolumn{3}{c}{$\adif{\Lambda} = +1$ \textit{Transitions}}                                                                                               \\
         \cmidrule(lr){1-3}
-        $S_J^R$ & $\dfrac{(J'' + 2 + \Lambda'')(J'' + 1 + \Lambda'')}{4(J'' + 1)}$          & $\dfrac{(J' + \Lambda')(J' - 1 + \Lambda')}{4J'}$                  \\
+        $S_{J}^{R}$ & $\dfrac{(J'' + 2 + \Lambda'')(J'' + 1 + \Lambda'')}{4(J'' + 1)}$          & $\dfrac{(J' + \Lambda')(J' - 1 + \Lambda')}{4J'}$                  \\
         \addlinespace[0.5em]
-        $S_J^Q$ & $\dfrac{(J'' + 1 + \Lambda'')(J'' - \Lambda'')(2J'' + 1)}{4J''(J'' + 1)}$ & $\dfrac{(J' + \Lambda')(J' + 1 - \Lambda')(2J' + 1)}{4J'(J' + 1)}$ \\
+        $S_{J}^{Q}$ & $\dfrac{(J'' + 1 + \Lambda'')(J'' - \Lambda'')(2J'' + 1)}{4J''(J'' + 1)}$ & $\dfrac{(J' + \Lambda')(J' + 1 - \Lambda')(2J' + 1)}{4J'(J' + 1)}$ \\
         \addlinespace[0.5em]
-        $S_J^P$ & $\dfrac{(J'' - 1 - \Lambda'')(J'' - \Lambda'')}{4J''}$                    & $\dfrac{(J' + 1 - \Lambda')(J' + 2 - \Lambda')}{4(J' + 1)}$        \\
+        $S_{J}^{P}$ & $\dfrac{(J'' - 1 - \Lambda'')(J'' - \Lambda'')}{4J''}$                    & $\dfrac{(J' + 1 - \Lambda')(J' + 2 - \Lambda')}{4(J' + 1)}$        \\
         \addlinespace[0.5em]
-        \multicolumn{3}{c}{$\adif{\Lambda} = -1$ \textit{Transitions}}                                                                                           \\
+        \multicolumn{3}{c}{$\adif{\Lambda} = -1$ \textit{Transitions}}                                                                                               \\
         \cmidrule(lr){1-3}
-        $S_J^R$ & $\dfrac{(J'' + 2 - \Lambda'')(J'' + 1 - \Lambda'')}{4(J'' + 1)}$          & $\dfrac{(J' - \Lambda')(J' - 1 - \Lambda')}{4J'}$                  \\
+        $S_{J}^{R}$ & $\dfrac{(J'' + 2 - \Lambda'')(J'' + 1 - \Lambda'')}{4(J'' + 1)}$          & $\dfrac{(J' - \Lambda')(J' - 1 - \Lambda')}{4J'}$                  \\
         \addlinespace[0.5em]
-        $S_J^Q$ & $\dfrac{(J'' + 1 - \Lambda'')(J'' + \Lambda'')(2J'' + 1)}{4J''(J'' + 1)}$ & $\dfrac{(J' - \Lambda')(J' + 1 + \Lambda')(2J' + 1)}{4J'(J' + 1)}$ \\
+        $S_{J}^{Q}$ & $\dfrac{(J'' + 1 - \Lambda'')(J'' + \Lambda'')(2J'' + 1)}{4J''(J'' + 1)}$ & $\dfrac{(J' - \Lambda')(J' + 1 + \Lambda')(2J' + 1)}{4J'(J' + 1)}$ \\
         \addlinespace[0.5em]
-        $S_J^P$ & $\dfrac{(J'' - 1 + \Lambda'')(J'' + \Lambda'')}{4J''}$                    & $\dfrac{(J' + 1 + \Lambda')(J' + 2 + \Lambda')}{4(J' + 1)}$        \\
+        $S_{J}^{P}$ & $\dfrac{(J'' - 1 + \Lambda'')(J'' + \Lambda'')}{4J''}$                    & $\dfrac{(J' + 1 + \Lambda')(J' + 2 + \Lambda')}{4(J' + 1)}$        \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -102,9 +102,9 @@ The variation of the intensity of the lines in a rotation-vibration band as a fu
 
 The intensities of the lines of rotation or rotation-vibration bands in absorption are
 \begin{equation}
-    I\_{abs} = \frac{C\_{abs}\nu}{Q_r}(J' + J'' + 1)\eul^{-F(J'')hc/kT}.
+    I\subtxt{abs} = \frac{C\subtxt{abs}\nu}{Q_{r}}(J' + J'' + 1)e^{-F(J'')hc/kT}.
 \end{equation}
 In emission, they are
 \begin{equation}
-    I\_{em} = \frac{C\_{em}\nu^4}{Q_r}(J' + J'' + 1)\eul^{-F(J')hc/kT}.
+    I\subtxt{em} = \frac{C\subtxt{em}\nu^{4}}{Q_{r}}(J' + J'' + 1)e^{-F(J')hc/kT}.
 \end{equation}

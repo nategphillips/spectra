@@ -1,66 +1,109 @@
 # spectra
 
-> *Last Updated: 6 June 2024*
+A tool for simulating the Schumann–Runge bands of molecular oxygen written in Python. Built using NumPy, Polars, PySide6, PyQtGraph, and SciPy, `spectra` is designed to be easily understood and modified.
 
-A simulation of the Schumann-Runge bands of molecular oxygen written in Python.
+The capabilities of `spectra` are briefly summarized below. More detailed theory and notation are explained in the included document.
 
 ## Background
 
-This is a simple tool for computing and displaying the spectrum of molecular oxygen for the $B^3\Sigma_u^- - X^3\Sigma_g^-$ transition. The vibrating rotator approximation is used, with up to fourth-order corrections being applied to the vibrational term value.
+### Rotational Hamiltonian
 
-Diatomic constants are obtained directly from the [NIST database](https://webbook.nist.gov/cgi/cbook.cgi?ID=C7782447&Mask=1000#Diatomic). General theory and notation are explained in the included document.
+The rotational Hamiltonian used for both the $B^3\Sigma_u^-$ and $X^3\Sigma_g^-$ states is
 
-Included within this tool for comparison are:
+$$
+H = H_{r} + H_{ss} + H_{sr},
+$$
 
-- Experimental data from the [Harvard CFA molecular database](https://lweb.cfa.harvard.edu/amp/ampdata/cfamols.html)
-- Simulated data from [PGOPHER](https://pgopher.chm.bris.ac.uk/Help/makeo2.htm)
-- Tabulated data from [HITRAN](https://hitran.org/lbl/3?36=on)
-- Simulated data from [Cosby 1993](https://ntrs.nasa.gov/citations/19930050666)
+where
 
-## Features
+$$
+\begin{aligned}
+    H_{r}  &= B\mathbf{N}^{2} - D\mathbf{N}^{4} \\
+    H_{ss} &= \frac{2}{3}\lambda(3S_{z}^{2} - \mathbf{S}^{2}) \\
+    H_{sr} &= \gamma\mathbf{N}\cdot\mathbf{S}.
+\end{aligned}
+$$
 
-This tool includes features for:
+Upper state constants are taken from [*Molecular Spectroscopic Constants of O2: The Upper State of the Schumann–Runge Bands*](https://doi.org/10.1016/0022-2852(86)90196-7) by Cheung et al. (1986). Ground state constants are taken from [*High Resolution Spectral Analysis of Oxygen: IV*](https://doi.org/10.1063/1.4900510) by Yu et al. (2014).
 
-- Population density based on the Boltzmann distribution and total partition function
-- Simulating the effects of triplet splitting
+### Spectral Broadening
 
-The plots can be displayed as:
+Convolutions include the effects of both Gaussian and Lorentzian broadening mechanisms. Each type of broadening can be toggled on or off individually.
 
-- Quantized spectral line positions
-- Convolved lineshapes given a measurement temperature and pressure to better match experimental data
-- Comparisons with experimental or simulated data
+#### Gaussian
 
-Convolutions include the effects of:
+- Thermal Doppler broadening
+- Instrument broadening
 
-- Thermal doppler broadening (Gaussian)
-- Pressure broadening (Lorentzian)
-- Natural broadening (Lorentzian)
-- Predissociation broadening (Lorentzian)
+#### Lorentzian
 
-The effects are all computed and convolved into an overall Voigt profile.
+- Pressure broadening
+- Natural broadening
+- Predissociation broadening
 
-Since this tool only simulates the Schumann-Runge bands of $\text{O}_2^{16}$, neither the molecule nor the electronic transition can be changed. Vibrational transitions up to around $v=15$ are supported with the included Franck-Condon factor tables, but the constants currently used are only valid to around $v\approx9$. The maximum rotational quantum number is $N=35$, which is limited by the predissociation broadening data used.
+### Rotational Lines
+
+By default, 40 rotational lines are simulated. Currently, predissociation factors are computed for each rotational line using a polynomial fit that is valid up to $v = 21$ and $J = 40$. Therefore, it is recommended not to exceed $J = 40$ by a large margin if accuracy is to be preserved.
+
+### Equilibrium & Non-equilibrium
+
+In general, the electronic, vibrational, and rotational Boltzmann partition functions are computed assuming Boltzmann population distributions. For equilibrium simulations, the input temperature for all states (translational, electronic, vibrational, and rotational) is the same. Non-equilibrium simulations have different temperatures specified for each state, but the population distributions within each state remain Boltzmann.
+
+### Plot Types
+
+Four plot types are currently implemented:
+
+- Line
+  - Each rotational line is plotted at its exact wavenumber.
+- Line Info
+  - Information is printed above each line for easier identification.
+- Convolve Separate
+  - The rotational lines within a single vibrational band are convolved.
+- Convolve All
+  - All vibrational bands are convolved together.
 
 ## Example Spectrum
 
-An example spectrum of $\text{O}_2^{16}$ using:
+An equilibrium simulation of $\text{O}_2^{16}$ using the following parameters is shown below.
 
-- $(v',v'')=(2,0)$
-- $N_\text{max}=35$
+- $(v', v'') = (2, 0)$ and $(4, 1)$
+- $N_\text{max} = 35$
 - $T=300$ $\text{K}$
 - $p=101325$ $\text{Pa}$
 
-Convolved lineshapes are simulated and plotted against sample data from the [Harvard CFA database](https://lweb.cfa.harvard.edu/amp/ampdata/o2pub92/o2wb2x0.xsc).
-
 ![Example Spectrum](img/example.webp)
+
+All user-accessible options are visible in the GUI, including vibrational band selection, broadening toggles, simulation parameters, and plotting options. Each vibrational band has an associated table containing information about all the simulated rotational lines within that band.
+
+## Installation
+
+This repository uses the [uv](https://github.com/astral-sh/uv) package manager for Python. After installing uv, the necessary packages can be installed in a virtual environment by navigating to the repository's root directory and installing the dependencies:
+
+```bash
+uv sync
+```
+
+Then, navigate to the `src/` directory and run the GUI:
+
+```bash
+uv run ./gui.py
+```
 
 ## Roadmap
 
-There is quite a bit of functionality I'd still like to add in the future, such as:
+### GUI Functionality
 
-- [x] Predissociation linewidth broadening in the Lorentzian convolution
-- [x] Addition of Franck-Condon factors to allow for the computation of two or more vibrational transitions at once
-- [x] Add support for including the effects of laser-induced fluorescence (LIF) spectroscopy
-- [ ] Add correct predissociation rates for all vibrational and rotational quantum numbers
-  - Currently using data that is only valid for $v' = 0$
-- [ ] Compute the number of photons emitted by a given band for LIF
+- [x] Switch to PyQtGraph instead of Matplotlib for improved plot performance
+- [x] Add the ability to export rotational line data from the built-in spreadsheet
+- [ ] Build a more intuitive interface for adding/removing simulated and experimental data, especially once multiple molecules are added
+- [ ] Design and implement a GUI for LIF computations, including estimated fluorescence yield and the ability to search for rotational line overlaps
+
+### Physics
+
+- [ ] Add support for more diatomic molecules, starting with $\text{NO}$
+- [ ] Implement electronic spectra for atomic species
+- [ ] Include the ability to view and edit the rotational Hamiltonian on a per-term basis
+
+### Other
+
+- [ ] Package a pre-compiled binary to improve user experience

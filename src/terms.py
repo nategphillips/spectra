@@ -1,93 +1,95 @@
-# module term
-"""
-Contains functions used for vibrational and rotational term calculations.
-"""
+# module terms
+"""Contains functions used for vibrational and rotational term calculations."""
+
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from state import State
 
-def vibrational_term(state: State, vib_qn: int) -> float:
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
+
+def vibrational_term(state: State, v_qn: int) -> float:
+    """Return the vibrational term value in [1/cm].
+
+    Args:
+        state (State): Electronic `State` object.
+        v_qn (int): Vibrational quantum number v.
+
+    Returns:
+        float: The vibrational term value in [1/cm].
     """
-    Returns the vibrational term value.
+    return state.constants["G"][v_qn]
+
+
+def rotational_term(state: State, v_qn: int, j_qn: int, branch_idx: int) -> float:
+    """Return the rotational term value in [1/cm].
+
+    Args:
+        state (State): Electronic `State` object.
+        v_qn (int): Vibrational quantum number v.
+        j_qn (int): Rotational quantum number J.
+        branch_idx (int): Branch index.
+
+    Raises:
+        ValueError: If the branch index cannot be found.
+
+    Returns:
+        float: The rotational term value in [1/cm].
     """
+    lookup_table: dict[str, list[float]] = state.constants
 
-    # Herzberg p. 149, eq. (IV, 10)
+    b: float = lookup_table["B"][v_qn]
+    d: float = lookup_table["D"][v_qn]
+    l: float = lookup_table["lamda"][v_qn]
+    g: float = lookup_table["gamma"][v_qn]
+    ld: float = lookup_table["lamda_D"][v_qn]
+    gd: float = lookup_table["gamma_D"][v_qn]
 
-    return (state.consts["w_e"]   * (vib_qn + 0.5)    -
-            state.consts["we_xe"] * (vib_qn + 0.5)**2 +
-            state.consts["we_ye"] * (vib_qn + 0.5)**3 +
-            state.consts["we_ze"] * (vib_qn + 0.5)**4)
+    # NOTE: 24/11/05 - The Hamiltonians in Cheung and Yu are defined slightly differently, which
+    #       leads to some constants having different values. Since the Cheung Hamiltonian matrix
+    #       elements are used to solve for the energy eigenvalues, the constants from Yu are changed
+    #       to fit the convention used by Cheung. See the table below for details.
+    #
+    #       Cheung  | Yu
+    #       --------|------------
+    #       D       | -D
+    #       lamda_D | 2 * lamda_D
+    #       gamma_D | 2 * gamma_D
 
-def rotational_constants(state: State, vib_qn: int) -> list[float]:
-    """
-    Returns the rotational constants.
-    """
+    if state.name == "X3Sg-":
+        d *= -1
+        ld *= 2
+        gd *= 2
 
-    # Herzberg pp. 107-109, eqs. (III, 117-127)
+    # The Hamiltonian from Cheung is written in Hund's case (a) representation, so J is used instead
+    # of N.
+    x: int = j_qn * (j_qn + 1)
 
-    b_v: float = (state.consts["b_e"]                        -
-                  state.consts["alph_e"] * (vib_qn + 0.5)    +
-                  state.consts["gamm_e"] * (vib_qn + 0.5)**2 +
-                  state.consts["delt_e"] * (vib_qn + 0.5)**3)
+    # The four Hamiltonian matrix elements given in Cheung.
+    h11: float = (
+        b * (x + 2)
+        - d * (x**2 + 8 * x + 4)
+        - 4 / 3 * l
+        - 2 * g
+        - 4 / 3 * ld * (x + 2)
+        - 4 * gd * (x + 1)
+    )
+    h12: float = -2 * np.sqrt(x) * (b - 2 * d * (x + 1) - g / 2 - 2 / 3 * ld - gd / 2 * (x + 4))
+    h21: float = h12
+    h22: float = b * x - d * (x**2 + 4 * x) + 2 / 3 * l - g + 2 / 3 * x * ld - 3 * x * gd
 
-    d_v: float = state.consts["d_e"] - state.consts["beta_e"] * (vib_qn + 0.5)
-
-    h_v: float = state.consts["h_e"]
-
-    return [b_v, d_v, h_v]
-
-def rotational_term(state: State, vib_qn: int, rot_qn: int, branch_idx: int) -> float:
-    """
-    Returns the rotational term value.
-    """
-
-    b, d, h = rotational_constants(state, vib_qn)
-
-    lamd: float = state.consts["lamd"]
-    gamm: float = state.consts["gamm"]
-
-    # Shorthand notation for rotational quantum numbers
-    x1: int = (rot_qn + 1) * (rot_qn + 2) # F1: J = N + 1, so J(J + 1) -> (N + 1)(N + 2)
-    x2: int = rot_qn * (rot_qn + 1)       # F2: J = N,     so J(J + 1) -> N(N + 1)
-    x3: int = rot_qn * (rot_qn - 1)       # F3: J = N - 1, so J(J + 1) -> N(N - 1)
-
-    # Bergeman, 1972 - The Fine Structure of O2
-    # f1 = b*x1 + b - d*x1**2 - 6*d*x1 - 2*d - lamd/3 - gamm/2 - np.sqrt(16*b**2*x1 + 4*b**2 - 64*b*d*x1**2 - 80*b*d*x1 - 16*b*d - 8*b*lamd - 16*b*gamm*x1 - 4*b*gamm + 64*d**2*x1**3 + 144*d**2*x1**2 + 96*d**2*x1 + 16*d**2 + 16*d*lamd*x1 + 16*d*lamd + 32*d*gamm*x1**2 + 40*d*gamm*x1 + 8*d*gamm + 4*lamd**2 + 4*lamd*gamm + 4*gamm**2*x1 + gamm**2)/2
-    # f2 = x2 * b - x2**2 * d + 2*lamd/3
-    # f3 = b*x3 + b - d*x3**2 - 6*d*x3 - 2*d - lamd/3 - gamm/2 + np.sqrt(16*b**2*x3 + 4*b**2 - 64*b*d*x3**2 - 80*b*d*x3 - 16*b*d - 8*b*lamd - 16*b*gamm*x3 - 4*b*gamm + 64*d**2*x3**3 + 144*d**2*x3**2 + 96*d**2*x3 + 16*d**2 + 16*d*lamd*x3 + 16*d*lamd + 32*d*gamm*x3**2 + 40*d*gamm*x3 + 8*d*gamm + 4*lamd**2 + 4*lamd*gamm + 4*gamm**2*x3 + gamm**2)/2
-
-    # Schlapp, 1936 - Fine Structure in the 3Σ Ground State of the Oxygen Molecule
-    # From Herzberg - simplified expression for the square root)
-    # f1 = b * rot_qn * (rot_qn + 1) + b * (2 * rot_qn + 3) - lamd - np.sqrt(b**2 * (2 * rot_qn + 3)**2 + lamd**2 - 2 * lamd * b) + gamm * (rot_qn + 1)
-    # f2 = b * rot_qn * (rot_qn + 1)
-    # f3 = b * rot_qn * (rot_qn + 1) - b * (2 * rot_qn - 1) - lamd + np.sqrt(b**2 * (2 * rot_qn - 1)**2 + lamd**2 - 2 * lamd * b) - gamm * rot_qn
-    # For N = 1, J = 0 (F3 only), the sign in front of the square root has to be inverted
-
-    # Schlapp, 1936 - Fine Structure in the 3Σ Ground State of the Oxygen Molecule
-    # From matrix elements - "precise" values
-    f1: float = b * x1 + b - lamd - np.sqrt((b - lamd)**2 + (b - gamm / 2)**2 * 4 * x1)
-    f2: float = b * x2
-    f3: float = b * x3 + b - lamd + np.sqrt((b - lamd)**2 + (b - gamm / 2)**2 * 4 * x3)
-
-    # NOTE: 06/07/24 - The rotational quantum number being input into this function is N
-    # TODO: 06/07/24 - When N = 0, only the F1 triplet exists for the ground state
-    # Hanson - Spectroscopy and Optical Diagnostics for Gases p. 170
-
-    # TODO: 06/07/24 - For J = 0, the energy is -2 * lamd + b * rot_qn * (rot_qn + 1) + 2 * b
-    # Hougen - The Calculation of Rotational Energy Levels in Diatomic Molecules, p. 15
-    # TODO: 06/07/24 -  J is only zero when N = 1 and the triplet branch is F3
-    # Hanson - Spectroscopy and Optical Diagnostics for Gases, p. 170
+    hamiltonian: NDArray[np.float64] = np.array([[h11, h12], [h21, h22]])
+    f1, f3 = np.linalg.eigvals(hamiltonian)
 
     match branch_idx:
-        # F1 triplet
         case 1:
             return f1
-        # F2 triplet
         case 2:
-            return f2
-        # F3 triplet
+            return b * x - d * x**2 + 2 / 3 * l - g + 2 / 3 * x * ld - x * gd
         case 3:
             return f3
         case _:
-            raise ValueError("ERROR: invalid branch index.")
+            raise ValueError(f"Invalid branch index: {branch_idx}")

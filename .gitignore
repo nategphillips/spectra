@@ -1,5 +1,5 @@
 # Python
-*.pyc
+__pycache__/
 .venv
 
 # LaTeX
@@ -17,3 +17,4 @@
 *.bbl
 *.blg
 *.pgf-plot.*
+*.pdf

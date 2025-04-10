@@ -1,188 +1,181 @@
 # module plot
-"""
-Contains functions used for plotting.
-"""
+"""Contains functions used for plotting."""
+
+from typing import TYPE_CHECKING
 
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import scienceplots  # pylint: disable = unused-import
+import pyqtgraph as pg
+from numpy.typing import NDArray
 
-import convolve
-from line import Line
-from simulation import Simulation
+import utils
+from sim import Sim
 
-# plt.style.use(["science", "grid"])
+if TYPE_CHECKING:
+    from line import Line
 
-def wavenum_to_wavelen(x) -> np.ndarray:
+PEN_WIDTH: int = 1
+
+
+def plot_sample(
+    plot_widget: pg.PlotWidget,
+    wavenumbers: NDArray[np.float64],
+    intensities: NDArray[np.float64],
+    display_name: str,
+) -> None:
+    """Plot sample data.
+
+    Args:
+        plot_widget (pg.PlotWidget): A `GraphicsView` widget with a single `PlotItem` inside.
+        wavenumbers (NDArray[np.float64]): Sample wavenumbers.
+        intensities (NDArray[np.float64]): Sample intensities.
+        display_name (str): The name of the file without directory information.
     """
-    Converts wavenumbers to wavelengths and vice versa.
+    wavelengths: NDArray[np.float64] = utils.wavenum_to_wavelen(wavenumbers)
+
+    plot_widget.plot(
+        wavelengths,
+        intensities / intensities.max(),
+        pen=pg.mkPen("w", width=PEN_WIDTH),
+        name=display_name,
+    )
+
+
+def plot_line(plot_widget: pg.PlotWidget, sim: Sim, colors: list[str]) -> None:
+    """Plot each rotational line.
+
+    Args:
+        plot_widget (pg.PlotWidget): A `GraphicsView` widget with a single `PlotItem` inside.
+        sim (Sim): The parent simulation.
+        colors (list[str]): A list of colors for plotting.
     """
+    max_intensity: float = sim.all_line_data()[1].max()
 
-    x                     = np.array(x, float)
-    near_zero: np.ndarray = np.isclose(x, 0)
+    for idx, band in enumerate(sim.bands):
+        wavelengths_line: NDArray[np.float64] = utils.wavenum_to_wavelen(band.wavenumbers_line())
+        intensities_line: NDArray[np.float64] = band.intensities_line()
 
-    x[near_zero]  = np.inf
-    x[~near_zero] = 1 / x[~near_zero]
+        # Create a scatter plot with points at zero and peak intensity.
+        scatter_data: NDArray[np.float64] = np.column_stack(
+            [
+                np.repeat(wavelengths_line, 2),
+                np.column_stack(
+                    [np.zeros_like(wavelengths_line), intensities_line / max_intensity]
+                ).flatten(),
+            ],
+        ).astype(np.float64)
 
-    return x * 1e7
+        plot_widget.plot(
+            scatter_data[:, 0],
+            scatter_data[:, 1],
+            pen=pg.mkPen(colors[idx], width=PEN_WIDTH),
+            connect="pairs",
+            name=f"{sim.molecule.name} {band.v_qn_up, band.v_qn_lo} line",
+        )
 
-def plot_show() -> None:
+
+def plot_line_info(plot_widget: pg.PlotWidget, sim: Sim, colors: list[str]) -> None:
+    """Plot information about each rotational line.
+
+    Args:
+        plot_widget (pg.PlotWidget): A `GraphicsView` widget with a single `PlotItem` inside.
+        sim (Sim): The parent simulation.
+        colors (list[str]): A list of colors for plotting.
     """
-    Sets axis labels, creates a secondary x-axis for wavenumbers, displays the legend, and calls the
-    plot.
-    """
-
-    ax = plt.gca()
-
-    secax = ax.secondary_xaxis("top", functions=(wavenum_to_wavelen, wavenum_to_wavelen))
-    secax.set_xlabel("Wavenumber, $\\nu$ [cm$^{-1}$]")
-
-    plt.xlabel("Wavelength, $\\lambda$ [nm]")
-    plt.ylabel("Intensity, Arbitrary Units [-]")
-
-    plt.legend()
-    plt.show()
-
-def plot_samp(samp_file: str, color: str, plot_as: str = "stem") -> None:
-    """
-    Plots either line data or convolved data from a designated sample file.
-    """
-
-    sample_data: pd.DataFrame = pd.read_csv(f"../data/samples/{samp_file}.csv")
-
-    wavenumbers: np.ndarray = sample_data["wavenumbers"].to_numpy()
-    wavelengths: np.ndarray = wavenum_to_wavelen(wavenumbers)
-    intensities: np.ndarray = sample_data["intensities"].to_numpy()
-    intensities /= intensities.max()
-
-    match plot_as:
-        case "stem":
-            plt.stem(wavelengths, intensities, color, markerfmt='', label=samp_file)
-        case "plot":
-            plt.plot(wavelengths, intensities, color, label=samp_file)
-        case _:
-            raise ValueError(f"Invalid value for plot_as: {plot_as}.")
-
-def plot_band_info(sim: Simulation) -> None:
-    """
-    Plots information about each vibrational band.
-    """
-
-    for vib_band in sim.vib_bands:
-        wavenumber: float = vib_band.wavenumbers_line()[0]
-        wavelength: float = 1 / wavenumber * 1e7
-
-        plt.text(wavelength, 0, f"{vib_band.vib_qn_up, vib_band.vib_qn_lo}")
-
-def plot_line_info(sim: Simulation) -> None:
-    """
-    Plots information about each rotational line.
-    """
-
-    for vib_band in sim.vib_bands:
-        wavenumbers_line: np.ndarray = vib_band.wavenumbers_line()
-        wavelengths_line: np.ndarray = wavenum_to_wavelen(wavenumbers_line)
-        intensities_line: np.ndarray = vib_band.intensities_line()
-        lines:            list[Line] = vib_band.lines
-
-        for idx, line in enumerate(lines):
-            plt.text(wavelengths_line[idx], intensities_line[idx], f"{line.branch_name}")
-
-def plot_line(sim: Simulation, colors: list) -> None:
-    """
-    Plots each rotational line.
-    """
+    # In order to show text, a plot must first exist.
+    plot_line(plot_widget, sim, colors)
 
     max_intensity: float = sim.all_line_data()[1].max()
 
-    for idx, vib_band in enumerate(sim.vib_bands):
-        wavelengths_line: np.ndarray = wavenum_to_wavelen(vib_band.wavenumbers_line())
-        intensities_line: np.ndarray = vib_band.intensities_line() / max_intensity
+    for band in sim.bands:
+        # Only select non-satellite lines to reduce the amount of data on screen.
+        lines: list[Line] = [line for line in band.lines if not line.is_satellite]
 
-        plt.stem(wavelengths_line, intensities_line, colors[idx], markerfmt='',
-                 label=f"{sim.molecule.name} {vib_band.vib_qn_up, vib_band.vib_qn_lo} line")
+        for line in lines:
+            wavelength: float = utils.wavenum_to_wavelen(line.wavenumber)
+            intensity: float = line.intensity / max_intensity
+            text: pg.TextItem = pg.TextItem(
+                f"{line.branch_name}_{line.branch_idx_up}{line.branch_idx_lo}",
+                color="w",
+                anchor=(0.5, 1.2),
+            )
+            plot_widget.addItem(text)
+            text.setPos(wavelength, intensity)
 
-def plot_conv(sim: Simulation, colors: list) -> None:
+
+def plot_conv_sep(
+    plot_widget: pg.PlotWidget,
+    sim: Sim,
+    colors: list[str],
+    fwhm_selections: dict[str, bool],
+    inst_broadening_wl: float,
+    granularity: int,
+) -> None:
+    """Plot convolved data for each vibrational band separately.
+
+    Args:
+        plot_widget (pg.PlotWidget): A `GraphicsView` widget with a single `PlotItem` inside.
+        sim (Sim): The parent simulation.
+        colors (list[str]): A list of colors for plotting.
+        fwhm_selections (dict[str, bool]): The types of broadening to be simulated.
+        inst_broadening_wl (float): Instrument broadening FWHM in [nm].
+        granularity (int): Number of points on the wavenumber axis.
     """
-    Plots convolved data for each vibrational band separately.
+    # Need to convolve all bands separately, get their maximum intensities, store the largest, and
+    # then divide all bands by that maximum. If the max intensity was found for all bands convolved
+    # together, it would be inaccurate because of vibrational band overlap.
+    max_intensity: float = max(
+        band.intensities_conv(
+            fwhm_selections,
+            inst_broadening_wl,
+            band.wavenumbers_conv(inst_broadening_wl, granularity),
+        ).max()
+        for band in sim.bands
+    )
+
+    for idx, band in enumerate(sim.bands):
+        wavelengths_conv: NDArray[np.float64] = utils.wavenum_to_wavelen(
+            band.wavenumbers_conv(inst_broadening_wl, granularity)
+        )
+        intensities_conv: NDArray[np.float64] = band.intensities_conv(
+            fwhm_selections,
+            inst_broadening_wl,
+            band.wavenumbers_conv(inst_broadening_wl, granularity),
+        )
+
+        plot_widget.plot(
+            wavelengths_conv,
+            intensities_conv / max_intensity,
+            pen=pg.mkPen(colors[idx], width=PEN_WIDTH),
+            name=f"{sim.molecule.name} {band.v_qn_up, band.v_qn_lo} conv",
+        )
+
+
+def plot_conv_all(
+    plot_widget: pg.PlotWidget,
+    sim: Sim,
+    colors: list[str],
+    fwhm_selections: dict[str, bool],
+    inst_broadening_wl: float,
+    granularity: int,
+) -> None:
+    """Plot convolved data for all vibrational bands simultaneously.
+
+    Args:
+        plot_widget (pg.PlotWidget): A `GraphicsView` widget with a single `PlotItem` inside.
+        sim (Sim): The parent simulation.
+        colors (list[str]): A list of colors for plotting.
+        fwhm_selections (dict[str, bool]): The types of broadening to be simulated.
+        inst_broadening_wl (float): Instrument broadening FWHM in [nm].
+        granularity (int): Number of points on the wavenumber axis.
     """
+    wavenumbers_conv, intensities_conv = sim.all_conv_data(
+        fwhm_selections, inst_broadening_wl, granularity
+    )
+    wavelengths_conv: NDArray[np.float64] = utils.wavenum_to_wavelen(wavenumbers_conv)
 
-    max_intensity: float = sim.all_conv_data()[1].max()
-
-    for idx, vib_band in enumerate(sim.vib_bands):
-        wavelengths_conv: np.ndarray = wavenum_to_wavelen(vib_band.wavenumbers_conv())
-        intensities_conv: np.ndarray = vib_band.intensities_conv() / max_intensity
-
-        plt.plot(wavelengths_conv, intensities_conv, colors[idx],
-                 label=f"{sim.molecule.name} {vib_band.vib_qn_up, vib_band.vib_qn_lo} conv")
-
-def plot_conv_all(sim: Simulation, color: str) -> None:
-    """
-    Plots convolved data for all vibrational bands simultaneously.
-    """
-
-    wavenumbers_conv, intensities_conv = sim.all_conv_data()
-    wavelengths_conv: np.ndarray = wavenum_to_wavelen(wavenumbers_conv)
-
-    intensities_conv /= intensities_conv.max()
-
-    plt.plot(wavelengths_conv, intensities_conv, color, label=f"{sim.molecule.name} conv all")
-
-def plot_inst(sim: Simulation, colors: list, broadening: float) -> None:
-    """
-    Plots data convolved with an instrument function for each vibrational band separately.
-    """
-
-    for idx, vib_band in enumerate(sim.vib_bands):
-        wavelengths_conv: np.ndarray = wavenum_to_wavelen(vib_band.wavenumbers_conv())
-
-        plt.plot(wavelengths_conv, vib_band.intensities_inst(broadening), colors[idx],
-                 label=f"{sim.molecule.name} {vib_band.vib_qn_up, vib_band.vib_qn_lo} inst")
-
-def plot_inst_all(sim: Simulation, color: str, broadening: float) -> None:
-    """
-    Plots data convolved with an instrument function for all vibrational bands simultaneously.
-    """
-
-    wavenumbers_conv, intensities_conv = sim.all_conv_data()
-    wavelengths_conv: np.ndarray = wavenum_to_wavelen(wavenumbers_conv)
-
-    intensities_inst: np.ndarray = convolve.convolve_inst(wavenumbers_conv, intensities_conv,
-                                                          broadening)
-    intensities_inst /= intensities_inst.max()
-
-    plt.plot(wavelengths_conv, intensities_inst, color, label=f"{sim.molecule.name} inst all")
-
-def plot_residual(sim: Simulation, color: str, samp_file: str) -> None:
-    """
-    Plots the difference between convolved simulation data and sample data.
-    """
-
-    # Sample processing
-    sample_data: pd.DataFrame = pd.read_csv(f"../data/samples/{samp_file}.csv")
-
-    wavenumbers_samp: np.ndarray = sample_data["wavenumbers"].to_numpy()
-    intensities_samp: np.ndarray = sample_data["intensities"].to_numpy()
-    intensities_samp /= intensities_samp.max()
-
-    for _, vib_band in enumerate(sim.vib_bands):
-        # FIXME: 06/05/24 - Temporary normalization for rotational lines in a single band, used for
-        #        comparing against sample data
-        wavenumbers_sim: np.ndarray = vib_band.wavenumbers_conv()
-        intensities_sim: np.ndarray = vib_band.intensities_conv()
-        intensities_sim /= intensities_sim.max()
-
-        # Experimental data is held as the baseline, simulated data is linearly interpolated
-        intensities_interp: np.ndarray = np.interp(wavenumbers_samp, wavenumbers_sim,
-                                                   intensities_sim)
-
-        residual:     np.ndarray = intensities_samp - intensities_interp
-        abs_residual: np.ndarray = np.abs(residual)
-
-        print(f"Max absolute residual: {abs_residual.max()}")
-        print(f"Mean absolute residual: {abs_residual.mean()}")
-        print(f"Standard deviation: {residual.std()}")
-
-        plt.plot(wavenum_to_wavelen(wavenumbers_samp), residual, color,
-                 label=f"{sim.molecule.name} {vib_band.vib_qn_up, vib_band.vib_qn_lo} residual")
+    plot_widget.plot(
+        wavelengths_conv,
+        intensities_conv / intensities_conv.max(),
+        pen=pg.mkPen(colors[0], width=PEN_WIDTH),
+        name=f"{sim.molecule.name} conv all",
+    )

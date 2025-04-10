@@ -1,0 +1,40 @@
+[project]
+name = "spectra"
+version = "0.1.0"
+description = "A tool for simulating diatomic spectra."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "matplotlib>=3.10.1",
+    "numpy>=2.2.3",
+    "polars>=1.24.0",
+    "pyqtgraph>=0.13.7",
+    "pyside6-essentials>=6.8.2.1",
+    "scipy>=1.15.2",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+extend-select = [
+    "A",
+    "ARG",
+    "C4",
+    "C90",
+    "D",
+    "E",
+    "FIX",
+    "I",
+    "N",
+    "NPY",
+    "PL",
+    "RET",
+    "SIM",
+    "TC",
+    "UP",
+    "W",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
