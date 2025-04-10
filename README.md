@@ -1,6 +1,7 @@
 # spectra
 
-> *Last Updated: 25 October 2023*
+> [!WARNING]  
+> This branch preserves a very early version of `spectra`. As such, there are various bugs and incorrect calculations present within the program which have been fixed in subsequent releases. Do not use this code!
 
 A simulation of the Schumann-Runge bands of molecular oxygen written in Python.
 
