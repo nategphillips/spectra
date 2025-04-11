@@ -1,6 +1,8 @@
 # module utils
 """Contains useful utility functions."""
 
+import sys
+from pathlib import Path
 from typing import overload
 
 import numpy as np
@@ -70,3 +72,17 @@ def bandwidth_wavelen_to_wavenum(center_wl: float, fwhm_wl: float) -> float:
         float: The FWHM bandwidth in [1/cm].
     """
     return 1e7 * fwhm_wl / (center_wl**2 - fwhm_wl**2 / 4)
+
+
+def get_data_path(*relative_path_parts) -> Path:
+    """Get the correct data path, accounting for PyInstaller executable.
+
+    Returns:
+        Path: A relative path if developing, the absolute path to the bundle folder if Pyinstaller.
+    """
+    if getattr(sys, "frozen", False):
+        base_path = Path(sys._MEIPASS)
+    else:
+        base_path = Path(__file__).resolve().parent.parent
+
+    return base_path.joinpath(*relative_path_parts)

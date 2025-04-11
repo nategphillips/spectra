@@ -491,7 +491,7 @@ class GUI(QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption="Open File",
-            dir=str(Path("..", "data", "samples")),
+            dir=str(utils.get_data_path("data", "samples")),
             filter="CSV Files (*.csv);;All Files (*)",
         )
         if filename:

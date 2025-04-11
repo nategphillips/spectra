@@ -2,7 +2,6 @@
 """A three-level LIF model for the Schumann-Runge bands of molecular oxygen."""
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import overload
 
 import matplotlib.pyplot as plt
@@ -11,6 +10,7 @@ import scipy as sy
 from numpy.typing import NDArray
 
 import constants
+import utils
 from atom import Atom
 from line import Line
 from molecule import Molecule
@@ -258,8 +258,7 @@ def get_rates(sim: Sim, line: Line) -> RateParams:
     g_l: int = constants.ELECTRONIC_DEGENERACIES[sim.molecule.name][sim.state_lo.name]
 
     a21_coeffs: NDArray[np.float64] = np.loadtxt(
-        fname=Path(
-            "..",
+        fname=utils.get_data_path(
             "data",
             sim.molecule.name,
             "einstein",

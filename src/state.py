@@ -1,10 +1,9 @@
 # module state
 """Contains the implementation of the State class."""
 
-from pathlib import Path
-
 import polars as pl
 
+import utils
 from molecule import Molecule
 
 
@@ -35,7 +34,7 @@ class State:
         Returns:
             dict[str, list[float]]: A `dict` of molecular constants for the electronic state.
         """
-        return pl.read_csv(Path("..", "data", molecule, "states", f"{state}.csv")).to_dict(
+        return pl.read_csv(utils.get_data_path("data", molecule, "states", f"{state}.csv")).to_dict(
             as_series=False
         )
 
