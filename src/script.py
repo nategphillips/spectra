@@ -1,5 +1,5 @@
 # module script.py
-"""This module demonstrates how to use the capabilities of spectra without using the GUI."""
+"""This module demonstrates how to use the capabilities of pyGEONOSIS without using the GUI."""
 
 # Copyright (C) 2025 Nathan Phillips
 

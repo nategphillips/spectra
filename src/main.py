@@ -276,7 +276,7 @@ class GUI(QMainWindow):
         #
         # pg.setConfigOptions(antialias=True, useOpenGL=True)
 
-        self.setWindowTitle("Diatomic Molecular Simulation")
+        self.setWindowTitle("pyGEONOSIS")
         self.resize(1600, 800)
         self.center()
         self.init_ui()
@@ -982,7 +982,7 @@ class SplashScreen(QWidget):
         title_font: QFont = QFont("Arial", 24, QFont.Weight.Bold)
         painter.setFont(title_font)
         painter.drawText(
-            0, 60, self.width(), 40, Qt.AlignmentFlag.AlignCenter, "Diatomic Molecular Simulation"
+            0, 60, self.width(), 40, Qt.AlignmentFlag.AlignCenter, "pyGEONOSIS"
         )
 
         # Subtitle.
@@ -994,7 +994,7 @@ class SplashScreen(QWidget):
             self.width(),
             30,
             Qt.AlignmentFlag.AlignCenter,
-            "The Schumann-Runge Bands of Molecular Oxygen",
+            "Python GEnerated Oxygen and Nitric Oxide SImulated Spectra",
         )
 
         # Status text.

@@ -1,8 +1,8 @@
-# spectra
+# pyGEONOSIS
 
-A tool for simulating the Schumann–Runge bands of molecular oxygen written in Python. Built using NumPy, Polars, PySide6, PyQtGraph, and SciPy, `spectra` is designed to be easily understood and modified.
+Python GEnerated Oxygen and Nitric Oxide SImulated Spectra (pyGEONOSIS) is a tool for simulating the Schumann–Runge (B-X) bands of molecular oxygen, and eventually the A-X transition of nitric oxide. Built using NumPy, Polars, PySide6, PyQtGraph, and SciPy, pyGEONOSIS is designed to be easily understood and modified.
 
-The capabilities of `spectra` are briefly summarized below. More detailed theory and notation are explained in the included document.
+The capabilities of this tool are briefly summarized below. More detailed theory and notation are explained in the included document.
 
 ## Background
 
@@ -79,17 +79,17 @@ All user-accessible options are visible in the GUI, including vibrational band s
 
 ### From an Executable
 
-Go to the [releases tab](https://github.com/nategphillips/spectra/releases) of this repository and download the latest compressed archive specific to your operating system. Extract the contents and run the binary file contained inside.
+Go to the [releases tab](https://github.com/nategphillips/pyGEONOSIS/releases) of this repository and download the latest compressed archive specific to your operating system. Extract the contents and run the binary file contained inside.
 
 ### From Source
 
 On your PC, navigate to a directory of your choice and run
 
 ```bash
-git clone https://github.com/nategphillips/spectra
+git clone https://github.com/nategphillips/pyGEONOSIS
 ```
 
-to download the source code directly. This repository uses the [uv](https://github.com/astral-sh/uv) package manager for Python. Install uv using the instructions on their [website](https://docs.astral.sh/uv/). Once uv is installed, the packages required for `spectra` can be added in a virtual environment by navigating to the repository's root directory and installing the dependencies:
+to download the source code directly. This repository uses the [uv](https://github.com/astral-sh/uv) package manager for Python. Install uv using the instructions on their [website](https://docs.astral.sh/uv/). Once uv is installed, the packages required for pyGEONOSIS can be added in a virtual environment by navigating to the repository's root directory and installing the dependencies:
 
 ```bash
 uv sync
